@@ -1,2 +1,4 @@
-# KokeKloud-Lab-Kubernetes-Challenge-1
-Solution for  Lab- Kubernetes Challenge 1 on KodeKloud
+# KokeKloud-Lab-Kubernetes-Challenge
+Solution for Lab- Kubernetes Challenge  on KodeKloud
+
+
