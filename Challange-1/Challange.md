@@ -81,25 +81,121 @@ spec:
 vi pod.yaml
 ```
 ```
-
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: jekyll
+  name: jekyll
+  namespace: development
+spec:
+  volumes:
+    - name: site
+      persistentVolumeClaim:
+        claimName: jekyll-site
+  initContainers:
+  - name: copy-jekyll-site
+    image: gcr.io/kodekloud/customimage/jekyll
+    command: ['sh', '-c', 'jekyll', 'new', '/site' ]
+	volumeMounts:
+    - name: site
+      mountPath: /site
+  containers:
+  - image: gcr.io/kodekloud/customimage/jekyll-serve
+    name: jekyll
+	volumeMounts:
+    - name: site
+      mountPath: /site
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
 ```
 ***
 ### Step 4: develop-role
 1. 'developer-role', should have all(*) permissions for services in development namespace
 2. 'developer-role', should have all permissions(*) for persistentvolumeclaims in development namespace
 3. 'developer-role', should have all(*) permissions for pods in development namespace
+```
+vi role.yaml
+```
+```
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: development
+  name: developer-role
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods", "persistentvolumeclaims" , "services"]
+  verbs: ["*"]
+```
 ***
 ### Step 5: developer-rolebinding
 1. create rolebinding = developer-rolebinding, role= 'developer-role', namespace = development
 2. rolebinding = developer-rolebinding associated with user = 'martin'
+```
+vi devrolebinding.yaml
+```
+```
+apiVersion: rbac.authorization.k8s.io/v1
+# This role binding allows "jane" to read pods in the "default" namespace.
+# You need to already have a Role named "pod-reader" in that namespace.
+kind: RoleBinding
+metadata:
+  name: developer-rolebinding
+  namespace: development
+subjects:
+# You can specify more than one "subject"
+- kind: User
+  name: martin # "name" is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  # "roleRef" specifies the binding to a Role / ClusterRole
+  kind: Role #this must be Role or ClusterRole
+  name: developer-role  # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
+```
 ***
 ### Step 6: jelyll-node-service
 1. Service 'jekyll' uses targetPort: '4000', namespace: 'development'
 2. Service 'jekyll' uses Port: '8080', namespace: 'development'
 3. Service 'jekyll' uses NodePort: '30097', namespace: 'development'
 ***
+```
+vi service.yaml
+```
+```
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: jekyll
+  name: jekyll
+  namespace: development
+spec:
+  ports:
+  - name: "4000"
+    nodePort: 30097
+    port: 8080
+    protocol: TCP
+    targetPort: 4000
+  selector:
+    app: jekyll
+  type: NodePort
+status:
+  loadBalancer: {}
+```
+
 ### Step 7: kube-config
 1. set context 'developer' with user = 'martin' and cluster = 'kubernetes' as the current context.
+```
+kubectl config set-context developer --user=martin --cluster=kubernetes
+```
+```
+kubectl config use-context developer
+```
 
 
 
