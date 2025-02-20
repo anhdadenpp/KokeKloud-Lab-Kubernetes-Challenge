@@ -44,6 +44,42 @@ users:
     client-certificate: /root/martin.crt
     client-key: /root/martin.key
 ```
+### Step 2: jekyll-pvc
+1. Storage Request: 1Gi
+2. Access modes: ReadWriteMany
+3. pvc name = jekyll-site, namespace = development
+4. 'jekyll-site' PVC should be bound to the PersistentVolume called 'jekyll-site'.
+```
+vi pvc.yaml
+```
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jekyll-site
+  namespace: development
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: jekyll-site
+```
+### Step 3: jekyll
+1. pod: 'jekyll' has an initContainer, name: 'copy-jekyll-site', image: 'gcr.io/kodekloud/customimage/jekyll'
+2. initContainer: 'copy-jekyll-site', command: [ "jekyll", "new", "/site" ] (command to run: jekyll new /site)
+3. pod: 'jekyll', initContainer: 'copy-jekyll-site', mountPath = '/site'
+4. pod: 'jekyll', initContainer: 'copy-jekyll-site', volume name = 'site'
+5. pod: 'jekyll', container: 'jekyll', volume name = 'site'
+6. pod: 'jekyll', container: 'jekyll', image = 'gcr.io/kodekloud/customimage/jekyll-serve'
+7. pod: 'jekyll', uses volume called 'site' with pvc = 'jekyll-site'
+8. pod: 'jekyll' uses label 'run=jekyll'
+```
+vi pod.yaml
+```
+```
 
+```
 
 
