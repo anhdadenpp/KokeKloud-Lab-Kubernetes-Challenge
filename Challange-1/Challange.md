@@ -11,12 +11,11 @@ kubectl config set-credentials martin --client-certificate=/root/martin.crt --cl
 ```
 kubectl config set-context developer --user=martin --cluster=kubernetes
 ```
-3. Check
+3. Check output 
 ```
 kubectl config view
 ```
-> 
-controlplane ~ ➜  kubectl config view
+```
 apiVersion: v1
 clusters:
 - cluster:
@@ -44,5 +43,7 @@ users:
   user:
     client-certificate: /root/martin.crt
     client-key: /root/martin.key
+```
+
 
 
