@@ -1,7 +1,8 @@
 # Challange 1 : Deploy the given architecture diagram for implementing a Jekyll SSG
 ***
-### Diagram
+## Diagram
 ![image](https://github.com/user-attachments/assets/5c86e442-02bf-408e-b392-3d54c556efda?width=250&height=400)
+## Solution
 #### Step 1 : martin
 1. Build user information for martin in the default kubeconfig file: User = martin , client-key = /root/martin.key and client-certificate = /root/martin.crt (Ensure don't embed within the kubeconfig file)
 ```
@@ -67,6 +68,9 @@ spec:
       storage: 1Gi
   volumeName: jekyll-site
 ```
+```
+kubectl apply -f pvc.yaml
+```
 ***
 ### Step 3: jekyll
 1. pod: 'jekyll' has an initContainer, name: 'copy-jekyll-site', image: 'gcr.io/kodekloud/customimage/jekyll'
@@ -111,6 +115,9 @@ spec:
   dnsPolicy: ClusterFirst
   restartPolicy: Always
 ```
+```
+kubectl apply -f pod.yaml
+```
 ***
 ### Step 4: develop-role
 1. 'developer-role', should have all(*) permissions for services in development namespace
@@ -129,6 +136,9 @@ rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["pods", "persistentvolumeclaims" , "services"]
   verbs: ["*"]
+```
+```
+kubectl apply -f role.yaml
 ```
 ***
 ### Step 5: developer-rolebinding
@@ -155,6 +165,9 @@ roleRef:
   kind: Role #this must be Role or ClusterRole
   name: developer-role  # this must match the name of the Role or ClusterRole you wish to bind to
   apiGroup: rbac.authorization.k8s.io
+```
+```
+kubectl apply -f devrolebinding.yaml
 ```
 ***
 ### Step 6: jelyll-node-service
@@ -186,6 +199,9 @@ spec:
   type: NodePort
 status:
   loadBalancer: {}
+```
+```
+kubectl apply -f service.yaml
 ```
 
 ### Step 7: kube-config
