@@ -44,6 +44,7 @@ users:
     client-certificate: /root/martin.crt
     client-key: /root/martin.key
 ```
+***
 ### Step 2: jekyll-pvc
 1. Storage Request: 1Gi
 2. Access modes: ReadWriteMany
@@ -66,6 +67,7 @@ spec:
       storage: 1Gi
   volumeName: jekyll-site
 ```
+***
 ### Step 3: jekyll
 1. pod: 'jekyll' has an initContainer, name: 'copy-jekyll-site', image: 'gcr.io/kodekloud/customimage/jekyll'
 2. initContainer: 'copy-jekyll-site', command: [ "jekyll", "new", "/site" ] (command to run: jekyll new /site)
@@ -81,5 +83,23 @@ vi pod.yaml
 ```
 
 ```
+***
+### Step 4: develop-role
+1. 'developer-role', should have all(*) permissions for services in development namespace
+2. 'developer-role', should have all permissions(*) for persistentvolumeclaims in development namespace
+3. 'developer-role', should have all(*) permissions for pods in development namespace
+***
+### Step 5: developer-rolebinding
+1. create rolebinding = developer-rolebinding, role= 'developer-role', namespace = development
+2. rolebinding = developer-rolebinding associated with user = 'martin'
+***
+### Step 6: jelyll-node-service
+1. Service 'jekyll' uses targetPort: '4000', namespace: 'development'
+2. Service 'jekyll' uses Port: '8080', namespace: 'development'
+3. Service 'jekyll' uses NodePort: '30097', namespace: 'development'
+***
+### Step 7: kube-config
+1. set context 'developer' with user = 'martin' and cluster = 'kubernetes' as the current context.
+
 
 
